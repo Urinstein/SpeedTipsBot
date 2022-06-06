@@ -10,10 +10,8 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_
 
 client.on('interactionCreate', async interaction => {
 
-	console.log('testestesetsetsetsetsets');
-
 	if (!interaction.isCommand()) return;
-	if (interaction.channel.name != 'speedtips') return interaction.reply({ content: 'Sinteraction.updatepeedTipsBot only works in #speedtips', ephemeral: true });
+	if (interaction.channel.name != 'speedtips') return interaction.reply({ content: 'SpeedTipsBot only works in #speedtips', ephemeral: true });
 
 	var tipper = await Tipper.findOne({ where: {id: interaction.user.id} });
 	if (tipper != null) {tipper.name = interaction.user.username; tipper.save();}
@@ -716,15 +714,17 @@ client.on('interactionCreate', async interaction => {
 
 		let tippers = await Tipper.findAll();
 		for (const tipper of tippers) {
-			let season_tip = tipper.season_tip.split("_");
-			for (let i=0; i < season_tip.length; i++) {
-				if (season_tip[i] == old_id) {
-					season_tip[i] = new_id;
-					i = season_tip.length;
+			if (tipper.season_tip != null) {
+				let season_tip = tipper.season_tip.split("_");
+				for (let i=0; i < season_tip.length; i++) {
+					if (season_tip[i] == old_id) {
+						season_tip[i] = new_id;
+						i = season_tip.length;
+					}
 				}
+				tipper.season_tip = season_tip.join("_");
+				tipper.save();
 			}
-			tipper.season_tip = season_tip.join("_");
-			tipper.save();
 		}
 
 		const team = await Team.findOne({ where: {id: old_id}});
@@ -797,6 +797,37 @@ client.on('interactionCreate', async interaction => {
 		player.destroy();
 		await collectedSelect.update({ content: `Player '${collectedSelect.values[0]}' from team '${team.id}' has been deleted.`, components: [] });
 
+	} else if (commandName === 'deletetipper') {
+
+		const select = new MessageSelectMenu().setCustomId('removetipper').setPlaceholder(`Select a tipper to delete.`);
+		const tippers = await Tipper.findAll();
+		for (const tipper of tippers) {
+			var tag = '';
+			if (tipper.is_admin) tag = '[admin] ';
+			else if (tipper.is_mod) tag = '[mod] ';
+			select.addOptions([ {label: tipper.name, description: `${tipper.points}pts ${tag} ${tipper.id}`, value: `${tipper.id}`} ])
+		}
+		await interaction.reply({ components: [new MessageActionRow().addComponents(select)], ephemeral: true });
+	
+		const collectedSelect = await interaction.channel?.awaitMessageComponent({ filter, idle: 60 * 1000, componentType: 'SELECT_MENU'})
+			.catch(_e => { return interaction.editReply({ content: 'This menu has expired after 60 seconds. You can dismiss the message.', components: [] }) });
+		if (collectedSelect.content === 'This menu has expired after 60 seconds. *You can dismiss the message.*') {return}
+
+		
+		//user makes selection
+		console.log(`${interaction.user.tag} selected /${commandName} ${collectedSelect.values[0]}`);
+
+		let tipper_id = collectedSelect.values[0];
+		if (tipper_id === 'null') tipper_id = null;
+		const tipper = await Tipper.findOne({ where: {id: tipper_id}});
+		const tipper_name = tipper.name;
+
+		const tips = await tipper.getTips();
+		for (const tip of tips) { tip.destroy(); }
+
+		tipper.destroy();
+		return interaction.editReply({ content: `Tipper **${tipper_name}** (${tipper_id}) has been deleted.`, components: [] });
+
 	} else if (commandName === 'addmod') {
 
 		const tipper_id = interaction.options.getString('user_id');
@@ -811,7 +842,7 @@ client.on('interactionCreate', async interaction => {
 
 	} else if (commandName === 'addadmin') {
 
-		const tipper_id = interaction.options.getString('user_tag');
+		const tipper_id = interaction.options.getString('user_id');
 		const tipper_name = interaction.options.getString('user_name');
 
 		let tipper = await Tipper.findOne({ where: { id: tipper_id} })
@@ -827,7 +858,7 @@ client.on('interactionCreate', async interaction => {
 		tipper.save();
 
 		return interaction.reply(`${interaction.name} has relinquished admin.`);
-
+	
 	} return;
 });
 
