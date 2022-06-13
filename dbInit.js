@@ -7,7 +7,7 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 	storage: 'database.sqlite',
 });
 
-const Match = require('./models/Match.js')(sequelize, Sequelize.DataTypes);
+require('./models/Match.js')(sequelize, Sequelize.DataTypes);
 const Tipper = require('./models/Tipper.js')(sequelize, Sequelize.DataTypes);
 require('./models/Tip.js')(sequelize, Sequelize.DataTypes);
 const Team = require('./models/Team.js')(sequelize, Sequelize.DataTypes);
@@ -18,9 +18,7 @@ const force = process.argv.includes('--force') || process.argv.includes('-f');
 sequelize.sync({ force }).then(async () => {
 	
 	const init = [
-		Match.create({ id: 1, team_a_id: 'Urinstein', team_b_id: 'Pray4' }),
-
-		//Tipper.upsert({ id: '95664776423673856', name: 'Urinstein', is_mod: true, is_admin: true }),
+		Tipper.upsert({ id: '95664776423673856', name: 'Urinstein', is_mod: true, is_admin: true }),
 		Tipper.upsert({ id: '160817623318134784', name: 'HYPE', is_mod: true, is_admin: true }),
 		Tipper.upsert({ id: '315639032757616644', name: 'janfo', is_mod: true }),
 
