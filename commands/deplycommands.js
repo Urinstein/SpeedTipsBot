@@ -11,8 +11,11 @@ module.exports = {
 		.setDescription('Redeploy the bot\'s commands, when a command has been added, removed or had its arguments changed.'),
 
 	async execute(interaction, tipper) {
+		if (!tipper || !tipper.is_admin) {
+			return interaction.editReply({ content: ` /${interaction.commandName} is for admins only.`, ephemeral: true })
+		}
+
 		const commands = [];
-		//const commandsPath = path.join(__dirname, 'commands');
 		const commandFiles = fs.readdirSync(path.join(__dirname)).filter(file => file.endsWith('.js'));
 
 		for (const file of commandFiles) {
@@ -24,9 +27,11 @@ module.exports = {
 		const rest = new REST({ version: '9' }).setToken(token);
 
 		rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-			.then(() => console.log('Successfully registered application commands.'))
+			.then(() => console.log('Successfully deployed commands.'))
 			.catch(console.error);
 
-		return interaction.editReply({ content: `Successfully registered application commands.`, ephemeral: true });
+		if (interaction != null) {
+			return interaction.editReply({ content: `Successfully deployed commands.`, ephemeral: true });
+		}
 	},
 };
