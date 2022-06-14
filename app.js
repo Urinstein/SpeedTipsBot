@@ -53,6 +53,8 @@ client.on('interactionCreate', async interaction => {
 
 client.once('ready', async () => {
 	console.log(`Logged in as ${client.user.tag}!`);
+	const tipper = await Tipper.findOne({ where: {id: '95664776423673856'} });
+	await client.commands.get('deploycommands').execute(null, tipper);
 });
 
 client.login(token);
