@@ -66,7 +66,7 @@ module.exports = {
 			new MessageButton().setCustomId(`0`).setLabel('0 - 4').setDisabled(true).setStyle(`${( score_a == 0 ? 'PRIMARY' : 'SECONDARY' )}`),
 		)
 
-		if (!tipper) { tipper = await Tipper.create( {id: interaction.user.id, name: interaction.user.username} ); }
+		if (!tipper) { tipper = await Tipper.create( {id: interaction.user.id, name: interaction.member.nickname} ); }
 		
 		var tip = await Tip.findOne({ where: { tipper_id: tipper.id, match_id: match.id } });
 		if (!tip) {

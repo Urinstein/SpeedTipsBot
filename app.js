@@ -30,11 +30,12 @@ client.on('interactionCreate', async interaction => {
 	const command = client.commands.get(interaction.commandName);
 	if (!command) return;
 	console.log(`${interaction.user.tag} triggered /${interaction.commandName}`);
+	console.log(interaction.user);
 
 	await interaction.reply({ content: `/${interaction.commandName}`, loading: true, ephemeral: true })
 
 	var tipper = await Tipper.findOne({ where: {id: interaction.user.id} });
-	if (tipper != null) {tipper.name = interaction.user.username; tipper.save();}
+	if (tipper != null) {tipper.name = interaction.member.nickname; tipper.save();}
 	
 	try {
 		await command.execute(interaction, tipper, client);
