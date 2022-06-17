@@ -61,7 +61,12 @@ module.exports = {
 			teams.splice(parseInt(collected.values[0]), 1);
 		}
 
-		if (!tipper) { tipper = await Tipper.create({ id: interaction.user.id, name: interaction.member.nickname }); }
+		if (!tipper) {
+			var name = '';
+			if	(interaction.member.nickname != null) 	{name = interaction.member.nickname;}
+			else 										{name = interaction.user.username;}
+			tipper = await Tipper.create({ id: interaction.user.id, name: name });
+		}
 
 		if (tipper.season_tip != null && tipper.points > 0) {
 			let reply_plus = `Your league tip:\n\`\`\`\n${reply}\`\`\`\n***Changing your league tip will reset your points to 0.\nYou would lose ${tipper.points} points.***`;
