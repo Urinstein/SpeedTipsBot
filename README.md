@@ -1,7 +1,7 @@
 
 
 
-# what users can do:
+### what users can do:
 
 - anyone
     - register (button)
@@ -30,7 +30,7 @@
     - /deploycommands
 
 
-# things that happen automatically
+### things that happen automatically
 
     - first couple of posts get posted and pinned
     - matches get closed on time
@@ -38,7 +38,7 @@
     - SpeedTipsBot tips a random result on every match
 
 
-# still needs doing:
+### still needs doing:
 
 - "spacing functions" to add zeroes, or spaces to specific length of string (replace "space()" in /submitresult //edit stats) (also use for every Match#)
 - make a "I am ready to initalialise the database" message with a button for admins (so the bot can join the server and run without already doing stuff)
@@ -49,14 +49,14 @@
 
 
 
-# some cleaner code perhaps?
+### some cleaner code perhaps?
 
 - add more try/catch?
 - change all funcs/vars to snake_case (to distinguish from discord.js functions)
 
 
 
-# big maybies:
+### big maybies:
 
 - create all matches at the start (how would this work when Phase 2 is not yet determined?)
     - no need to include team names in /announcement (and people cannot fuck it up)
@@ -75,7 +75,7 @@
 
 
 
-# known bugs:
+### known bugs:
 
 - re-announcing an ended match should remove people's points
 - rescheduling/reannouncing matches should come with a warning (and probably mantion if a match is already ended)
@@ -99,12 +99,12 @@
 
 
 
-# commented OUT for development:
+### commented OUT for development:
 
 - intervall length
 - short-notice length (in /schedulematch)
 - .pin()
 
-# commented IN for development:
+### commented IN for development:
 
 - allowedMentions in /schedulematch new match and reannoucnement (announcement_channel.send)
