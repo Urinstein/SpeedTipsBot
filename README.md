@@ -32,10 +32,10 @@
 
 ### things that happen automatically
 
-    - first couple of posts get posted and pinned
-    - matches get closed on time
-    - scoreboard, stats and played matches get updated
-    - SpeedTipsBot tips a random result on every match
+- first couple of posts get posted and pinned
+- matches get closed on time
+- scoreboard, stats and played matches get updated
+- SpeedTipsBot tips a random result on every match
 
 
 ### still needs doing:
