@@ -1,8 +1,11 @@
 const { ActionRowBuilder, ButtonBuilder }  = require('discord.js');
 
-const buttons_announcement = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_cancel_match`).setLabel('cancel').setStyle('Secondary'),
-	new ButtonBuilder().setCustomId(`b_reschedule_match`).setLabel('reschedule').setStyle('Secondary'),
+const button_postpone = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_postpone_match`).setLabel('postpone').setStyle('Secondary'),
+)
+
+const button_postponed = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_postponed`).setLabel('postponed').setStyle('Danger').setDisabled(true),
 )
 
 const button_cancelled = new ActionRowBuilder().addComponents(
@@ -13,20 +16,14 @@ const button_closed = new ActionRowBuilder().addComponents(
 	new ButtonBuilder().setCustomId(`b_closed`).setLabel('closed').setStyle('Danger').setDisabled(true),
 )
 
-const button_dm_ann_yes = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_ann`).setLabel('sending announcements').setStyle('Success'),
+const button_dm_setting_ann = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('sending tips and announcements').setStyle('Primary'),
 )
-
-const button_dm_ann_no = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_ann`).setLabel('not sending announcements').setStyle('Danger'),
+const button_dm_setting_tips = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('sending tips').setStyle('Success'),
 )
-
-const button_dm_tips_yes = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_tips`).setLabel('sending tips').setStyle('Success'),
-)
-
-const button_dm_tips_no = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_tips`).setLabel('not sending tips').setStyle('Danger'),
+const button_dm_none = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('not sending dms').setStyle('Danger'),
 )
 
 function buttons_dm_result (score_a, result_a) {
@@ -123,17 +120,28 @@ const buttons_warning = new ActionRowBuilder().addComponents(
 	new ButtonBuilder().setCustomId(`b_nevermind`).setLabel('nevermind').setStyle('Secondary'),
 )
 
+const button_phase_2 = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_phase_2`).setLabel('Start Phase 2').setStyle('Danger')
+)
+
+const button_end_event = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_end_event`).setLabel('Finish the event').setStyle('Danger')
+)
+
+const button_initialise = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_initialise`).setLabel('Initialise').setStyle('Danger')
+)
 
 
 
 module.exports = { 
-	buttons_announcement, 
-	button_cancelled, 
+	button_postpone, 
+	button_postponed, 
+	button_cancelled,
 	button_closed, 
-	button_dm_ann_yes, 
-	button_dm_ann_no, 
-	button_dm_tips_yes, 
-	button_dm_tips_no, 
+	button_dm_setting_ann,
+	button_dm_setting_tips,
+	button_dm_none,
 	buttons_dm_result,
 	button_open, 
 	button_register, 
@@ -145,5 +153,8 @@ module.exports = {
 	buttons_tipped_closed,
 	buttons_tipped_green_closed,
 	buttons_tipped_red_closed,
-	buttons_warning, 
+	buttons_warning,
+	button_phase_2,
+	button_end_event,
+	button_initialise,
 };

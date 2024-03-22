@@ -8,7 +8,7 @@ module.exports = {
     async execute(interaction) {
 
         if(!isAdmin(interaction)) {return interaction.reply({ content: `Only Admins can use this command.`, ephemeral: true })}
-        await interaction.reply({ content: `The bot was shut down.`, ephemeral: true })
+        await interaction.editReply({ content: `The bot was shut down.`, ephemeral: true })
 
         process.exit();
 	},

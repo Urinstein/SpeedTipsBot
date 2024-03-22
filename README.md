@@ -16,18 +16,17 @@
 - captains
     - /schedulematch
         - new match
-        - schedueld Match
-        - ended match
+        - reschedule Match
         - their own team, but not other teams
         - with or without year
-    - reschedule (button)
-    - cancel match (button)
-    - /submitresult (only own team)
+    - postpone match (button)
+    - /submitresult (might remvoe this)
 
 - admins
     - do all that captains can, but for any team
     - /kill
     - /deploycommands
+    - initialise the bot and start phase 2
 
 
 ### things that happen automatically
@@ -36,37 +35,45 @@
 - matches get closed on time
 - scoreboard, stats and played matches get updated
 - SpeedTipsBot tips a random result on every match
+- results are fetched from website
+- scheduled match times are sent to the website (also match cancellations)
 
 
 ### still needs doing:
 
-- "spacing functions" to add zeroes, or spaces to specific length of string (replace "space()" in /submitresult //edit stats) (also use for every Match#)
-- make a "I am ready to initalialise the database" message with a button for admins (so the bot can join the server and run without already doing stuff)
+- change all match updates to go into update channel and update the match hsitory.
+    - schedule
+    - postpone
+    - cancel
+
+- uncancel matches (?)
+
 - /seasontip (currently no idea what his is even gonna be)
     - instead of registration have to do the season tips?
     - send dm with season tips
-- /help (need to automate the creation of this) (might not need this if I automate/buttonise almsot every command)
 
 
 
 ### some cleaner code perhaps?
 
-- add more try/catch?
+- at this point, schedule_match() and reschedule_match() can be put into one function again
+
+- make print_match() and add it to a bucnh fo places, instead of havignthe same kilometer long string everywhere
+
+- remove points from tipper table and always create scoreboard completely fresh (?)
+- put scoreboard and stats into their own functions
+
+- add comments to all functions
+- add try/catch to all functions
 - change all funcs/vars to snake_case (to distinguish from discord.js functions)
 
 
 
 ### big maybies:
 
-- create all matches at the start (how would this work when Phase 2 is not yet determined?)
-    - no need to include team names in /announcement (and people cannot fuck it up)
-    - liber can vote on unannounced matches (nevermind this is so stupid on so many levels)
-- make bot usage stats (how many peopel have dm settings active, how often have peopel voted through dms vs public, etc.)
 - people can tip with a command like before?
 - bot can remind people of matches
     -> make a 'user' class and a 'reminder' class. The Intervall goes through all reminders and dm's the respective people. the user gets a field where they can fill in the hours/minutes.
-- automatically receive results from the website and end the matches
-    -> add teams to config
 - add odds to the point distribution?
 - write a function, that replaces all Role-Mentions with Role-Name (for archiving)
 - add a daily minigame, where "the ball carrier" can choose how to cap the pole and the first three people to react can choose where to shoot.
@@ -77,23 +84,7 @@
 
 ### known bugs:
 
-- re-announcing an ended match should remove people's points
-- rescheduling/reannouncing matches should come with a warning (and probably mantion if a match is already ended)
-
-- scheduling a match outside of short-notice, but then rescheduling into short_notice "breaks" short-notice checks
-    -> check "createdAt" in reschedule-codeBlock
-        -> delete existing tips
-            -> look for deleted tips when rescheduled out of short_notice again
-                -> make SpeedTipsBot tip even on short_notice matches, but delete its tip
-
-- matches can be scheduled with any Role
-    - this would be solved by pre-creating the matches before league start
-    - alternatively add teams to config
-
-- /submitresult buttons get posted with 4-0 pre-pressed somehow?
-- /submitresult button presses say "interaction failed" for no good reason
-- captains can submit results to any match (instead of only their own)
-    - these three would be solved with auto-results
+- bot tips need to be undeleted on match announcement
 
 - in dms cannot distinguish ended matches that you have voted correctly vs not at all
 

@@ -5,10 +5,8 @@ module.exports = (sequelize, DataTypes) => {
 		captain_id:			{type: DataTypes.STRING, defaultValue: null},
 		scoreboard_id:		{type: DataTypes.STRING, defaultValue: null},
 		stats_id:			{type: DataTypes.STRING, defaultValue: null},
-		allmatches1_id:		{type: DataTypes.STRING, defaultValue: null},
-		allmatches2_id:		{type: DataTypes.STRING, defaultValue: null},
-		allmatches3_id:		{type: DataTypes.STRING, defaultValue: null},
-		allmatches4_id:		{type: DataTypes.STRING, defaultValue: null},
+		total_matches:		{type: DataTypes.INTEGER, defaultValue: 0},
+		phase:				{type: DataTypes.INTEGER, defaultValue: 1}
 	}, {
 		
 	});

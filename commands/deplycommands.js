@@ -12,7 +12,7 @@ module.exports = {
 		.setDescription('[Admin] Redeploy the bot\'s commands, when a command has been added, removed or changed.'),
 
 	async execute(interaction) {
-		if (!isAdmin(interaction)) {
+		if (!isAdmin(interaction) && interaction.id != clientId) {
 			return interaction.editReply({ content: ` /${interaction.commandName} is for admins only.`, ephemeral: true })
 		}
 
@@ -28,7 +28,7 @@ module.exports = {
 		const rest = new REST({ version: '9' }).setToken(token);
 
 		rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-			.then(() => console.log('Successfully deployed commands.'))
+			.then(() => console.log('Successfully deployed commands.\n'))
 			.catch(console.error);
 
 		if (interaction.user != null) {
