@@ -41,10 +41,7 @@
 
 ### still needs doing:
 
-- change all match updates to go into update channel and update the match hsitory.
-    - schedule
-    - postpone
-    - cancel
+- implement a way to postpone again
 
 - uncancel matches (?)
 
@@ -83,6 +80,8 @@
 
 
 ### known bugs:
+
+- no way to postpone rn
 
 - bot tips need to be undeleted on match announcement
 
