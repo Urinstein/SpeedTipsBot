@@ -24,12 +24,33 @@ var team_roles = [];
 //#region FUNCTIONS
 
 async function announce_match (interaction, match, time, is_short_notice) {
-	loggingAction(`${interaction.user.tag} used /${interaction.commandName}: [Match #${indent(match.id, 3, '0')}] (announcement) ${time.toLocaleString("en-GB", date_options)}`);
+	loggingAction(`${interaction.user.tag} used /${interaction.commandName}: [Match #${indent(match.id, 3, '0')}] (announce) ${time.toLocaleString("en-GB", date_options)}`);
 	if(match.result_a) {
 		loggingAction('but the match has already been played');
 		return interaction.editReply({ content: `This match has already been played.` })
 	}
+
+	// send warning
+	const a = await interaction.editReply({ 
+		content: 
+		`Are you sure you wish to schedule [Match #${indent(match.id, 3, '0')}]?\n<@&${match.team_a.role_id}>  -  <@&${match.team_b.role_id}>  -  ${time.toLocaleString("en-GB", date_options)}`,
+		components: [buttons_warning]
+	})
+
+	const filter = i => { return true };
+	const collectedButton = await a?.awaitMessageComponent({ filter, idle: 60 * 1000, componentType: ComponentType.Button})
+		.catch(_e => { return interaction.editReply({ content: 'This menu has expired after 60 seconds. *You can dismiss the message.*', components: [] }) })
+	if (collectedButton.content === 'This menu has expired after 60 seconds. *You can dismiss the message.*') {return}
 	
+	// user pressed a button
+	await loggingAction(`${interaction.user.tag} used /${interaction.commandName}: [Match #${indent(match.id, 3, '0')}] (announce) ${time.toLocaleString("en-GB", date_options)} and ${collectedButton.customId}`)
+	if(collectedButton.customId == 'b_nevermind') {
+		interaction.editReply({ content: 'Good choice.', components: [] })
+		return
+	}
+
+	
+	// update match
 	match.time = time;
 	match.is_open = !is_short_notice;
 	match.is_short_notice = is_short_notice;
@@ -72,7 +93,8 @@ async function announce_match (interaction, match, time, is_short_notice) {
 		}
 	}
 
-	interaction.editReply({ content: `Successfully scheduled match.` });
+//	return sendDate(match);
+	interaction.editReply({ content: `Successfully scheduled [Match #${indent(match.id, 3, '0')}].`, components: [] });
 	return
 }
 
@@ -139,7 +161,8 @@ async function cancel_match (interaction, match) {
 	await print_team_matches(match.team_a);
 	await print_team_matches(match.team_b);
 
-	interaction.editReply({ content: `Match was successfully cancelled.`, components: [] })
+//	return sendDate(match);
+	interaction.editReply({ content: `Successfully cancelled [Match #${indent(match.id, 3, '0')}]`, components: [] })
 
 	advance_phase();
 	
@@ -154,7 +177,7 @@ async function reschedule_match (interaction, match, time, is_short_notice, is_o
 	}
 
 	// reschedule warning buttons
-	const warning = await interaction.editReply({ content: `Are you sure you wish to reschedule [Match #${indent(match.id, 3, '0')}]  <@&${match.team_a.role_id}>  -  <@&${match.team_b.role_id}>?\nFrom: ${match.time.toLocaleString("en-GB", date_options)}\nTo: ${time.toLocaleString("en-GB", date_options)}\n\nIf this is wrong, people might get pissed.`, components: [buttons_warning] })
+	const warning = await interaction.editReply({ content: `Are you sure you wish to reschedule [Match #${indent(match.id, 3, '0')}]  <@&${match.team_a.role_id}>  -  <@&${match.team_b.role_id}>?\nFrom: ${match.time.toLocaleString("en-GB", date_options)}\nTo: ${time.toLocaleString("en-GB", date_options)}`, components: [buttons_warning] })
 
 	const filter = i => { return true };
 
@@ -243,7 +266,87 @@ async function reschedule_match (interaction, match, time, is_short_notice, is_o
 	await print_team_matches(match.team_a);
 	await print_team_matches(match.team_b);
 
-	return interaction.editReply({ content: 'The match has been successfully rescheduled.', components: [] })
+//	return sendDate(match);
+	return interaction.editReply({ content: `Successfully rescheduled [Match #${indent(match.id, 3, '0')}].`, components: [] })
+}
+
+async function postpone_match (interaction, match) {
+	try {
+		await loggingAction(`${interaction.user.tag} used /${interaction.commandName}: [Match #${indent(match.id, 3, '0')}] (postpone)`);
+		if(match.result_a) {
+			loggingAction('but the match has already been played');
+			return interaction.editReply({ content: `This match has already been played.` })
+		}
+		
+		// send warning
+		const a = await interaction.editReply({ 
+			content: 
+			`Are you sure you wish to POSTPONE [Match #${indent(match.id, 3, '0')}]?\n<@&${match.team_a.role_id}>  -  <@&${match.team_b.role_id}>`,
+			components: [buttons_warning] 
+		})
+
+		const filter = i => { return true };
+		const collectedButton = await a?.awaitMessageComponent({ filter, idle: 60 * 1000, componentType: ComponentType.Button})
+			.catch(_e => { return interaction.editReply({ content: 'This menu has expired after 60 seconds. *You can dismiss the message.*', components: [] }) })
+		if (collectedButton.content === 'This menu has expired after 60 seconds. *You can dismiss the message.*') {return}
+
+
+		// user pressed a button (confirm/nevermind)
+		loggingAction(`${interaction.user.tag} pressed ${interaction.customId} [Match #${indent(match.id, 3, '0')}] and ${collectedButton.customId}`);
+
+		if(collectedButton.customId == 'b_nevermind') {
+			interaction.editReply({ content: 'Good choice.', components: [] })
+			return
+		}
+
+		// update match
+		let now = new Date(Date.now());
+		match.time = null;
+		match.is_short_notice = false;
+		match.is_open = true;
+		match.history = (`\n${now.toLocaleString("en-GB", date_options_short)} <@${interaction.user.id}>: Match was postponed`).concat(match.history);
+		await match.save();
+
+		var message = `[Match #${indent(match.id, 3, '0')}] <@&${match.team_a.role_id}> - <@&${match.team_b.role_id}>`;
+
+		//updates
+		await announcement_channel.messages.edit(match.announcement_id, { content: message+match.history, allowedMentions: {parse: []} })
+
+		let update = await updates_channel.send(
+			message+`https://discord.com/channels/${guildId}/${announcement_channel_id}/${match.announcement_id}`
+			+`\nMatch was postponed.`
+		);
+		if (match.latest_update_id) {
+			await updates_channel.messages.delete(match.latest_update_id);
+		}
+		match.latest_update_id = update.id;
+
+		await print_team_matches(match.team_a);
+		await print_team_matches(match.team_b);
+
+
+		// soft delete tips
+		const tips = await match.getTips();
+		for (const tip of tips) {
+			if (tip.dm_id){
+				const user = await client.users.fetch(tip.tipper_id);
+				user.dmChannel.messages.edit(tip.dm_id, {content: `[Match #${indent(match.id, 3, '0')}]\nThe match was  postponed.`, components: []});
+				tip.dm_id = null; tip.save();
+			}
+			tip.destroy();
+		}
+
+		await tipping_channel.messages.delete(match.tipping_id);
+		match.tipping_id = null;
+		await match.save(); await match.destroy();
+
+//		return sendDate(match);
+		interaction.editReply({ content: `Successfully postponed [Match #${indent(match.id, 3, '0')}].`, components: [] });
+		return
+	} catch (error) {
+		await loggingError('b_postpone_match', `${interaction.user.tag} pressed ${interaction.customId}${typeof collectedButton !== 'undefined' ? ` and ${collectedButton.customId}` : '' }`, error);
+		return interaction.editReply({ content: `There was an error while executing this command!\nThe error has been submitted`, components: [] });
+	}
 }
 
 async function closeMatch (match) {
@@ -701,9 +804,13 @@ async function submit_result (match, result_a) {
 async function sendDate (match) {
 
 	let time = null;
-	try {
+	if (match.is_cancelled) {
+		time = 'cancelled';
+	} else if (match.time == null) {
+		time = null;
+	} else {
 		time = match.time.toISOString().replace(/T/, ' ').replace(/\..+/, '')
-	} catch {}
+	}
 	
 	const res = await fetch('https://speedball.the-dmark.com/stats/post/match-data.php',{
 		method: 'POST',
@@ -711,7 +818,9 @@ async function sendDate (match) {
 			event_type: event_type,
 			event_number: event_number,
 			match_id: match.id,
-			match_time: time
+			match_time: time,
+			team_a_id: match.team_a.id,
+			team_b_id: match.team_b.id
 		}),
 		headers: { 
 			'content-type': 'application/json; charset=UTF-8',
@@ -720,7 +829,7 @@ async function sendDate (match) {
 		},
 	})
 	if(res.ok){
-		const data = await res.json();
+		//const data = await res.json();
 		return loggingAction(`[Match #${indent(match.id, 3, '0')}] result has been sent to website.`)
 	}
 	else return loggingError(`[Match #${indent(match.id, 3, '0')}] result could not be sent to website.`,'','')
@@ -769,7 +878,7 @@ const date_options = {timeZone: "Europe/Berlin", weekday: 'long', day: '2-digit'
 const date_options_short = {timeZone: "Europe/Berlin", weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'};
 const date_options_very_short = {timeZone: "Europe/Berlin", day: '2-digit', month: '2-digit'};
 
-module.exports = { closeMatch, isTeamCaptain, isAdmin, loggingAction, loggingError, createTip, getName, print_team_matches, submit_result, indent, announce_match, cancel_match, reschedule_match, date_options, date_options_short, date_options_very_short };
+module.exports = { closeMatch, isTeamCaptain, isAdmin, loggingAction, loggingError, createTip, getName, print_team_matches, submit_result, indent, announce_match, cancel_match, reschedule_match, postpone_match, date_options, date_options_short, date_options_very_short };
 
 //#endregion FUNCTIONS
 
@@ -873,8 +982,8 @@ client.on('interactionCreate', async interaction => {
 		if (!interaction.isCommand()) return;
 		loggingAction(`${interaction.user.tag} used /${interaction.commandName}`);
 		
-		if (interaction.channel != tipping_channel && interaction.channel != announcement_channel) {
-			return interaction.reply({ content: `SpeedTipsBot only works in ${tipping_channel.url} and ${announcement_channel.url}`, ephemeral: true });
+		if (interaction.channel != tipping_channel && interaction.channel != announcement_channel && interaction.channel != updates_channel ) {
+			return interaction.reply({ content: `SpeedTipsBot only works in ${tipping_channel.url}, ${announcement_channel.url} and ${updates_channel.url}`, ephemeral: true });
 		}
 		const command = client.commands.get(interaction.commandName);
 		if (!command) return;
@@ -890,87 +999,6 @@ client.on('interactionCreate', async interaction => {
 //#endregion EXECUTE COMMANDS
 
 //#region BUTTON FUNCTIONS
-
-async function b_postpone_match (interaction) {
-	try {
-		const match = await Match.findOne({ where: { announcement_id: interaction.message.id }, include: ['team_a','team_b'] });
-
-		loggingAction(`${interaction.user.tag} pressed ${interaction.customId} [Match #${indent(match.id, 3, '0')}]`);
-
-		await interaction.reply({ content: `The bot is working on your button press.`, loading: true, ephemeral: true })
-		if (!isTeamCaptain(interaction, 'dummy', 'dummy')) { return interaction.editReply({ content: `Only captains can postpone their own matches.`}) }
-
-		if (!isTeamCaptain(interaction, match.team_a.role_id, match.team_b.role_id)) { return interaction.editReply({ content: `Your can postpone your own matches.`}) }
-		
-		// send warning
-		const a = await interaction.editReply({ 
-			content: 
-			`Are you sure you wish to postpone [Match #${indent(match.id, 3, '0')}]?\n<@&${match.team_a.role_id}>  -  <@&${match.team_b.role_id}>  -  ${match.time.toLocaleString("en-GB", date_options)}`+
-			'\n\nIf this is wrong, people might get pissed.',
-			components: [buttons_warning] 
-		})
-
-		const filter = i => { return true };
-		const collectedButton = await a?.awaitMessageComponent({ filter, idle: 60 * 1000, componentType: ComponentType.Button})
-			.catch(_e => { return interaction.editReply({ content: 'This menu has expired after 60 seconds. *You can dismiss the message.*', components: [] }) })
-		if (collectedButton.content === 'This menu has expired after 60 seconds. *You can dismiss the message.*') {return}
-
-
-		// user pressed a button (confirm/nevermind)
-		loggingAction(`${interaction.user.tag} pressed ${interaction.customId} [Match #${indent(match.id, 3, '0')}] and ${collectedButton.customId}`);
-
-		if(collectedButton.customId == 'b_nevermind') {
-			interaction.editReply({ content: 'Good choice.', components: [] })
-			return
-		}
-
-		// update match
-		let now = new Date(Date.now());
-		match.time = null;
-		match.is_short_notice = false;
-		match.is_open = true;
-		match.history = (`\n${now.toLocaleString("en-GB", date_options_short)} <@${interaction.user.id}>: Match was postponed`).concat(match.history);
-
-		var message = `[Match #${indent(match.id, 3, '0')}] <@&${match.team_a.role_id}> - <@&${match.team_b.role_id}>\n${match.history}`;
-
-		//updates
-		await announcement_channel.messages.edit(match.announcement_id, { content: message+match.history, allowedMentions: {parse: []} })
-
-		let update = await updates_channel.send(
-			message+`https://discord.com/channels/${guildId}/${announcement_channel_id}/${match.announcement_id}`
-			+`\nMatch was postponed.`
-		);
-		if (match.latest_update_id) {
-			await updates_channel.messages.delete(match.latest_update_id);
-		}
-		match.latest_update_id = update.id;
-
-		await print_team_matches(match.team_a);
-		await print_team_matches(match.team_b);
-
-
-		// soft delete tips
-		const tips = await match.getTips();
-		for (const tip of tips) {
-			if (tip.dm_id){
-				const user = await client.users.fetch(tip.tipper_id);
-				user.dmChannel.messages.edit(tip.dm_id, {content: `[Match #${indent(match.id, 3, '0')}]\nThe match was  postponed.`, components: []});
-				tip.dm_id = null; tip.save();
-			}
-			tip.destroy();
-		}
-
-		await tipping_channel.delete(match.tipping_id);
-		match.tipping_id = null;
-		await match.save(); await match.destroy();
-
-		interaction.editReply({ content: `Successfully postponed Match.`, components: [] });
-		return
-	} catch (error) {
-		await loggingError('b_postpone_match', `${interaction.user.tag} pressed ${interaction.customId}${typeof collectedButton !== 'undefined' ? ` and ${collectedButton.customId}` : '' }`, error);
-		return interaction.editReply({ content: `There was an error while executing this command!\nThe error has been submitted`, components: [] });
-	}
-}
 
 async function b_dm_setting (interaction) {
 	loggingAction(`${interaction.user.tag} pressed ${interaction.customId}`);
@@ -1057,9 +1085,8 @@ async function b_initialise (interaction) {
 		`Hello Captains!\nWelcome to ${event_name}`+
 		'\n\nIn this channel you will be using the bot to announce your scheduled matches.'+
 		`\nUse the ${inlineCode('/schedulematch')} command and fill in the details.`+
-		'\n\nTo re-schedule a match just submit the match again. (The \'reschedule\' button will give you a prefilled promt, that you can copy-paste.)'+
-		'\nTo postpone a match click the button on the match\'s announcement.'+
-		`\n\nIf you care to, you can also submit your match results with the ${inlineCode('/submitresult')} command. The tipping game enthusiasts would be appreciative.`
+		'\n\nTo re-schedule a match, just submit the match again.'+
+		'\nTo postpone a match, submit 0 for the day, month, hour, and minute.'
 	})
 	scoreboard_message = await tipping_channel.send({
 		content: 'SCOREBOARD\n\nThis will appear once a match has been played.'
@@ -1155,7 +1182,6 @@ client.on('interactionCreate', async interaction => {
 
 		// any other public button
 		switch (interaction.customId) {
-			case 'b_postpone_match': 			b_postpone_match(interaction); return;
 			case 'b_dm_setting': 				b_dm_setting(interaction); return;
 			case 'b_register_tipping_account': 	b_register_tipping_account(interaction); return;
 			case 'b_initialise': 				b_initialise(interaction); return;
