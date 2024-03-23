@@ -41,7 +41,7 @@
 
 ### still needs doing:
 
-- implement a way to postpone again
+- eventually add a check to request_result(), to see if the teams are the correct teams
 
 - uncancel matches (?)
 
@@ -79,11 +79,7 @@
 
 
 
-### known bugs:
-
-- no way to postpone rn
-
-- bot tips need to be undeleted on match announcement
+### known bugs/issues:
 
 - in dms cannot distinguish ended matches that you have voted correctly vs not at all
 
