@@ -4,7 +4,7 @@
 ### what users can do:
 
 - anyone
-    - register (button)
+    - register/make season tip
     - turn dm annoucenements on/off
     - turn tip dms on/off
     - tip in tipping_channel
@@ -12,6 +12,7 @@
         - tip with several configurations of dm settings
     - "retip"
     - /matches
+    - /submitvideo
 
 - captains
     - /schedulematch
@@ -19,11 +20,13 @@
         - reschedule Match
         - their own team, but not other teams
         - with or without year
-    - postpone match (button)
-    - /submitresult (might remvoe this)
+    - /postpone match
+    - /submitresult (just for dev)
 
 - admins
     - do all that captains can, but for any team
+    - cancel match (in /schedulematch)
+    - /penalty
     - /kill
     - /deploycommands
     - initialise the bot and start phase 2
@@ -32,6 +35,7 @@
 ### things that happen automatically
 
 - first couple of posts get posted and pinned
+- private team threads are created and populated
 - matches get closed on time
 - scoreboard, stats and played matches get updated
 - SpeedTipsBot tips a random result on every match
@@ -41,24 +45,16 @@
 
 ### still needs doing:
 
-- eventually add a check to request_result(), to see if the teams are the correct teams
-
-- uncancel matches (?)
-
-- /seasontip (currently no idea what his is even gonna be)
-    - instead of registration have to do the season tips?
-    - send dm with season tips
+- add average tip to the closed match post
+- resolving the season tips at the end of the season
 
 
 
 ### some cleaner code perhaps?
 
-- at this point, schedule_match() and reschedule_match() can be put into one function again
+- at this point, schedule_match() and reschedule_match() can be put into one function again maybe?
 
 - make print_match() and add it to a bucnh fo places, instead of havignthe same kilometer long string everywhere
-
-- remove points from tipper table and always create scoreboard completely fresh (?)
-- put scoreboard and stats into their own functions
 
 - add comments to all functions
 - add try/catch to all functions
@@ -68,29 +64,17 @@
 
 ### big maybies:
 
-- people can tip with a command like before?
 - bot can remind people of matches
     -> make a 'user' class and a 'reminder' class. The Intervall goes through all reminders and dm's the respective people. the user gets a field where they can fill in the hours/minutes.
 - add odds to the point distribution?
 - write a function, that replaces all Role-Mentions with Role-Name (for archiving)
-- add a daily minigame, where "the ball carrier" can choose how to cap the pole and the first three people to react can choose where to shoot.
-    - if the carrier caps, he gets the point, the first one to shoot him, gets the ball
 - add buttons to dm_settings where people can have all their tips be sent or all currently open announcements (in case they change their mind on not having dms on)
 
 
 
 ### known bugs/issues:
 
-- in dms cannot distinguish ended matches that you have voted correctly vs not at all
-
+- tipping does not always update the tip-dm buttons
 
 
 ### commented OUT for development:
-
-- intervall length
-- short-notice length (in /schedulematch)
-- .pin()
-
-### commented IN for development:
-
-- allowedMentions in /schedulematch new match and reannoucnement (announcement_channel.send)
