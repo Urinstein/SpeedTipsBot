@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { isTeamCaptain, isAdmin, loggingError, indent, announce_match, cancel_match, reschedule_match, postpone_match } = require('../index.js');
+const { isTeamCaptain, isAdmin, loggingError, indent, announce_match, cancel_match, uncancel_match, reschedule_match, postpone_match } = require('../index.js');
 const { Match } = require('../dbObjects.js');
 const { short_notice_length } = require('../config.json');
 
@@ -20,7 +20,7 @@ module.exports = {
 		.addBooleanOption(	option => option.setName('cancel')	.setDescription('cancel the match'))
 		,
 
-	async execute(interaction, client, myGuild, tipping_channel, announcement_channel) {
+	async execute(interaction) {
 
 		try {
 			if (!isTeamCaptain(interaction, 'dummy', 'dummy')) { return interaction.editReply({ content: `Only captains can schedule matches.` }) }
@@ -29,13 +29,15 @@ module.exports = {
 			const match = await Match.findOne({ where: {id: match_id}, paranoid: false, include: ['team_a','team_b'] });
 			if(!match) {return interaction.editReply({ content: `[Match #${indent(match_id, 3, '0')}] does not exist!` })}		
 			if (!isTeamCaptain(interaction, match.team_a.role_id, match.team_b.role_id)) {
-				return interaction.editReply({ content: `Your can schedule your own matches.` })
+				return interaction.editReply({ content: `Your can schedule your own matches only.` })
 			}
 			
 			const cancel = interaction.options.getBoolean('cancel');
-			if (cancel) {
+			if (cancel != null) {
 				if (!isAdmin(interaction)) { return interaction.editReply({ content: `Only admins can cancel matches.` }) }
-				return cancel_match(interaction, match)
+
+				if (cancel) {return cancel_match(interaction, match);}
+				else {return uncancel_match(interaction, match);}
 			}
 
 			const day = interaction.options.getInteger('day');
@@ -61,7 +63,7 @@ module.exports = {
 				return await reschedule_match(interaction, match, time, is_short_notice, is_open)
 			}
 
-//			return sendDate(match);
+			return sendDate(match);
 
 		} catch (error) {
 			await loggingError('schedulematch.js', `${interaction.user.tag} used /${interaction.commandName}`, error)

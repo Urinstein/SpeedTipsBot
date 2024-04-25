@@ -17,19 +17,19 @@ const button_closed = new ActionRowBuilder().addComponents(
 )
 
 const button_dm_setting_ann = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('sending tips and announcements').setStyle('Primary'),
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('current setting: sending tips and announcements').setStyle('Primary'),
 )
 const button_dm_setting_tips = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('sending tips').setStyle('Success'),
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('current setting: sending tips').setStyle('Success'),
 )
 const button_dm_none = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('not sending dms').setStyle('Danger'),
+	new ButtonBuilder().setCustomId(`b_dm_setting`).setLabel('current setting: not sending dms').setStyle('Danger'),
 )
 
 function buttons_dm_result (score_a, result_a) {
 	var style = ['Secondary', 'Secondary', 'Secondary', 'Secondary', 'Secondary'];
 	style[score_a] = 'Danger';
-	style[result_a] = 'Success';
+	style[result_a] = score_a == result_a ? 'Success' : 'Primary';
 	return new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`4`).setLabel('4 - 0').setStyle(`${( style[4] )}`).setDisabled(true),
 		new ButtonBuilder().setCustomId(`3`).setLabel('3 - 1').setStyle(`${( style[3] )}`).setDisabled(true),
@@ -116,8 +116,8 @@ function buttons_tipped_red_closed (result_a) {
 }
 
 const buttons_warning = new ActionRowBuilder().addComponents(
-	new ButtonBuilder().setCustomId(`b_confirm`).setLabel('I understand').setStyle('Danger'),
-	new ButtonBuilder().setCustomId(`b_nevermind`).setLabel('nevermind').setStyle('Secondary'),
+	new ButtonBuilder().setCustomId(`b_confirm`).setLabel('Do it').setStyle('Danger'),
+	new ButtonBuilder().setCustomId(`b_nevermind`).setLabel('I changed my mind').setStyle('Secondary'),
 )
 
 const button_phase_2 = new ActionRowBuilder().addComponents(
@@ -130,6 +130,14 @@ const button_end_event = new ActionRowBuilder().addComponents(
 
 const button_initialise = new ActionRowBuilder().addComponents(
 	new ButtonBuilder().setCustomId(`b_initialise`).setLabel('Initialise').setStyle('Danger')
+)
+
+const button_begin_team_ranking = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_begin`).setLabel('Begin: Final team ranking').setStyle('Success')
+)
+
+const button_begin_map_ranking = new ActionRowBuilder().addComponents(
+	new ButtonBuilder().setCustomId(`b_begin`).setLabel('Begin: Most played maps').setStyle('Success')
 )
 
 
@@ -157,4 +165,6 @@ module.exports = {
 	button_phase_2,
 	button_end_event,
 	button_initialise,
+	button_begin_team_ranking,
+	button_begin_map_ranking,
 };
